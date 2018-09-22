@@ -41,7 +41,7 @@ public class AdvancedCalculator extends HttpServlet {
         return String.join("", parts);
     }
 
-    protected static String addAndReturn(String equation, int signIndex) {
+    protected static String CalculateAndReturn(String equation, int signIndex) {
         String left = equation.substring(0, signIndex);
         String right = equation.substring(signIndex + 1);
         String firstStr = null;
@@ -55,9 +55,14 @@ public class AdvancedCalculator extends HttpServlet {
         matcher2.find();
         secondStr = right.substring(matcher2.start(), matcher2.end());
         double sum = 0;
-        if (equation.substring(signIndex, signIndex + 1).equals("+")) {
+        String sign = equation.substring(signIndex, signIndex + 1);
+        if (sign.equals("*")) {
+            sum = Double.parseDouble(firstStr) * Double.parseDouble(secondStr);
+        } else if (sign.equals("/")) {
+            sum = Double.parseDouble(firstStr) / Double.parseDouble(secondStr);
+        } else if (sign.equals("+")) {
             sum = Double.parseDouble(firstStr) + Double.parseDouble(secondStr);
-        } else {
+        } else if (sign.equals("-")) {
             sum = Double.parseDouble(firstStr) - Double.parseDouble(secondStr);
         }
         StringBuilder newEquation = new StringBuilder();
@@ -68,39 +73,12 @@ public class AdvancedCalculator extends HttpServlet {
 
     }
 
-    protected static String multiplyAndReturn(String equation, int signIndex) {
-        String left = equation.substring(0, signIndex);
-        String right = equation.substring(signIndex + 1);
-        String firstStr = null;
-        String secondStr = null;
-        Pattern pattern = Pattern.compile("[\\-]?[0-9]*\\.?[0-9]+");
-        Matcher matcher1 = pattern.matcher(left);
-        Matcher matcher2 = pattern.matcher(right);
-        while (matcher1.find()) {
-            firstStr = left.substring(matcher1.start(), matcher1.end());
-        }
-        matcher2.find();
-        secondStr = right.substring(matcher2.start(), matcher2.end());
-        double product = 0;
-        if (equation.substring(signIndex, signIndex + 1).equals("*")) {
-            product = Double.parseDouble(firstStr) * Double.parseDouble(secondStr);
-        } else {
-            product = Double.parseDouble(firstStr) / Double.parseDouble(secondStr);
-        }
-        StringBuilder newEquation = new StringBuilder();
-        newEquation.append(left.substring(0, left.length() - firstStr.length()));
-        newEquation.append(product);
-        newEquation.append(right.substring(secondStr.length()));
-        return newEquation.toString();
-
-    }
-
     protected static String firstOrder(String equation) {
         Pattern pattern1 = Pattern.compile("[0-9]([*/])[\\-]?[0-9]");
         Matcher matcher1 = pattern1.matcher(equation);
         while (matcher1.find()) {
             String operation = matcher1.group(1);
-            equation = multiplyAndReturn(equation, matcher1.start(1));
+            equation = CalculateAndReturn(equation, matcher1.start(1));
             matcher1 = pattern1.matcher(equation);
         }
         return equation;
@@ -111,7 +89,7 @@ public class AdvancedCalculator extends HttpServlet {
         Matcher matcher2 = pattern2.matcher(equation);
         while (matcher2.find()) {
             String operation = matcher2.group(1);
-            equation = addAndReturn(equation, matcher2.start(1));
+            equation = CalculateAndReturn(equation, matcher2.start(1));
             matcher2 = pattern2.matcher(equation);
         }
         return equation;
